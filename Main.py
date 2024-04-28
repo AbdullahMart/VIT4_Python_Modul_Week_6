@@ -1,33 +1,62 @@
+import datetime
 from abc import ABC, abstractmethod
-from datetime import datetime
+
 
 class Task(ABC):
-    def __init__(self, title, deadline):
-        self.title = title
+    def __init__(self, name, deadline):
+        self.name = name
         self.deadline = deadline
-        self.completed = False
+        self.status = False
 
     @abstractmethod
-    def display_info(self):
+    def display_details(self):
         pass
 
-class PersonalTask(Task):
-    def __init__(self, title, deadline, priority):
-        super().__init__(title, deadline)
-        self.priority = priority
 
-    def display_info(self):
-        status = "Completed" if self.completed else "Not Completed"
-        print(f"Title: {self.title}, Deadline: {self.deadline}, Priority: {self.priority}, Status: {status}")
+class PersonalTask(Task):
+    priority = 'Low'
+    color = 'Yellow'
+
+    def display_details(self):
+        status = "Completed" if self.status else "Pending"
+        print(f"Personal Task: {self.name}\n"
+              f"Priority     : {self.priority}\n"
+              f"Deadline     : {self.deadline}\n"
+              f"Color        : {self.color}\n"
+              f"Status       : {status}")
+
 
 class WorkTask(Task):
-    def __init__(self, title, deadline, project):
-        super().__init__(title, deadline)
-        self.project = project
+    priority = 'High'
+    color = 'Red'
 
-    def display_info(self):
-        status = "Completed" if self.completed else "Not Completed"
-        print(f"Title: {self.title}, Deadline: {self.deadline}, Project: {self.project}, Status: {status}")
+    def display_details(self):
+        status = "Completed" if self.status else "Pending"
+        print(f"Personal Task: {self.name}\n"
+              f"Priority     : {self.priority}\n"
+              f"Deadline     : {self.deadline}\n"
+              f"Color        : {self.color}\n"
+              f"Status       : {status}")
+
+
+class StudyTask(Task):
+    priority = 'Medium'
+    color = 'Green'
+
+    def display_details(self):
+        status = "Completed" if self.status else "Pending"
+        print(f"Personal Task: {self.name}\n"
+              f"Priority     : {self.priority}\n"
+              f"Deadline     : {self.deadline}\n"
+              f"Color        : {self.color}\n"
+              f"Status       : {status}")
+
+
+SPECIAL_KEYWORDS = {'today': datetime.datetime.today().strftime("%x %X"),
+                    'tomorrow': (datetime.datetime.today() + datetime.timedelta(days=1)).strftime("%x"),
+                    'next_week': (datetime.datetime.today() + datetime.timedelta(days=7)).strftime("%x")
+                    }
+
 
 class TaskManagement:
     def __init__(self):
@@ -37,17 +66,98 @@ class TaskManagement:
         self.task_list.append(task)
 
     def display_tasks(self):
-        for task in self.task_list:
-            task.display_info()
+        if not self.task_list:
+            print("No tasks to display.")
+            return
+        print("Tasks:")
+        for i in self.task_list:
+            i.display_details()
 
-# Örnek kullanım
-if __name__ == "__main__":
-    task_manager = TaskManagement()
 
-    personal_task = PersonalTask("Go to the dentist", datetime(2024, 4, 30), "High")
-    work_task = WorkTask("Finish project report", datetime(2024, 5, 10), "Project X")
+class TaskScheduling:
+    @staticmethod
+    def add_personal_task(name, deadline):
+        return PersonalTask(name, deadline)
 
-    task_manager.add_task(personal_task)
-    task_manager.add_task(work_task)
+    @staticmethod
+    def add_work_task(name, deadline):
+        return WorkTask(name, deadline)
 
-    task_manager.display_tasks()
+    @staticmethod
+    def add_study_task(name, deadline):
+        return StudyTask(name, deadline)
+
+
+class TaskEditing:
+
+    @staticmethod
+    def mark_completed(task):
+        task.status = True
+
+    @staticmethod
+    def change_deadline(task, new_deadline):
+        task.deadline = new_deadline
+
+    @staticmethod
+    def change_priority(task, prio):
+        task.priority = prio
+
+    @staticmethod
+    def change_color(task, new_color):
+        task.color = new_color
+
+    @staticmethod
+    def remove_task(tm_instance, task):
+        return tm_instance.task_list.remove(task)
+
+
+class TaskTracking:
+    @staticmethod
+    def get_tasks(task_management):
+        task_management.display_tasks()
+
+    @staticmethod
+    def search_task(tm_instance, task_name):
+        result = False
+        for i in tm_instance.task_list:
+            if task_name.lower() in i.name.lower():
+                result = i
+                break
+        return result
+
+
+if __name__ == '__main__':
+    wtask1 = TaskScheduling.add_work_task('Ise git', SPECIAL_KEYWORDS['today'])
+    ptask1 = TaskScheduling.add_personal_task('Uyu len', SPECIAL_KEYWORDS['tomorrow'])
+    stask1 = TaskScheduling.add_study_task('Odevi yap!', SPECIAL_KEYWORDS['next_week'])
+    ptask2 = TaskScheduling.add_personal_task('Uyan', SPECIAL_KEYWORDS['today'])
+
+    tm = TaskManagement()
+    tm.add_task(wtask1)
+    tm.add_task(ptask1)
+    tm.add_task(stask1)
+    tm.add_task(ptask2)
+    tm.display_tasks()
+    print('-' * 40)
+
+    te = TaskEditing()
+    te.mark_completed(ptask1)
+    tm.display_tasks()
+    print('-' * 40)
+
+    te.remove_task(tm, ptask2)
+    tm.display_tasks()
+    print('-' * 40)
+
+    te.change_deadline(ptask1, SPECIAL_KEYWORDS['next_week'])
+    tm.display_tasks()
+    print('-' * 40)
+
+    print('You will see the list two times!!!')
+    tt = TaskTracking()
+    tt.get_tasks(tm)
+    tm.display_tasks()
+    print('-' * 40)
+
+    searched_task = TaskTracking.search_task(tm, 'ode')
+    searched_task.display_details()
