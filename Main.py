@@ -59,8 +59,13 @@ SPECIAL_KEYWORDS = {'today': datetime.datetime.today().strftime("%x %X"),
 
 
 class TaskManagement:
-    def __init__(self):
-        self.task_list = []
+    _instance = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            cls._instance.task_list = []
+        return cls._instance
 
     def add_task(self, task):
         self.task_list.append(task)
@@ -75,6 +80,13 @@ class TaskManagement:
 
 
 class TaskScheduling:
+    _instance = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
     @staticmethod
     def add_personal_task(name, deadline):
         return PersonalTask(name, deadline)
