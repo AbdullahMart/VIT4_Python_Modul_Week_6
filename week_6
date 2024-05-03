@@ -34,4 +34,3 @@ class TaskTracking:
                 result = i
                 break
         return result
-
